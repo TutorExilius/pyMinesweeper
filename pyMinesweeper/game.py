@@ -149,36 +149,33 @@ class Game:
                     self.field[h][w].paired_button.setText("💣")
 
     def step_in(self, h, w):
-        try:
-            if self.field[h][w].paired_button.maybe_mine or self.field[h][w].visible:
-                return
+        if h not in range(self.field_height):
+            return
 
-            if h not in range(self.field_height):
-                return
+        if w not in range(self.field_width):
+            return
 
-            if w not in range(self.field_width):
-                return
+        if self.field[h][w].paired_button.maybe_mine or self.field[h][w].visible:
+            return
 
-            if self.field[h][w].visible:
-                return
+        if self.field[h][w].visible:
+            return
 
-            if self.field[h][w].amount == CellValue.ZERO:
-                self.field[h][w].visible = True
-                self.left_free_nonmined_cells -= 1
-                self.step_in(h - 1, w - 1)
-                self.step_in(h - 1, w)
-                self.step_in(h - 1, w + 1)
-                self.step_in(h, w + 1)
-                self.step_in(h + 1, w + 1)
-                self.step_in(h + 1, w)
-                self.step_in(h + 1, w - 1)
-                self.step_in(h, w - 1)
-            elif self.field[h][w].amount == CellValue.MINE:
-                self.field[h][w].paired_button.setStyleSheet("background-color: red;")
-                self.show_mines_and_game_over()
-                self.parent.game_over()
-            else:
-                self.field[h][w].visible = True
-                self.left_free_nonmined_cells -= 1
-        except Exception as e:
-            print("Ignore out-of-range")
+        if self.field[h][w].amount == CellValue.ZERO:
+            self.field[h][w].visible = True
+            self.left_free_nonmined_cells -= 1
+            self.step_in(h - 1, w - 1)
+            self.step_in(h - 1, w)
+            self.step_in(h - 1, w + 1)
+            self.step_in(h, w + 1)
+            self.step_in(h + 1, w + 1)
+            self.step_in(h + 1, w)
+            self.step_in(h + 1, w - 1)
+            self.step_in(h, w - 1)
+        elif self.field[h][w].amount == CellValue.MINE:
+            self.field[h][w].paired_button.setStyleSheet("background-color: red;")
+            self.show_mines_and_game_over()
+            self.parent.game_over()
+        else:
+            self.field[h][w].visible = True
+            self.left_free_nonmined_cells -= 1
