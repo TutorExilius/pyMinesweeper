@@ -5,7 +5,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import *
 from PyQt5 import uic, Qt, QtGui, QtCore
 from pathlib import Path
-from minesweeper.game import Game
+from pyMinesweeper.game import Game
 
 
 class MainWindow(QMainWindow):
