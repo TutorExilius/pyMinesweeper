@@ -14,3 +14,11 @@ or:
 
 pip3 install --user -r requirements.txt
 
+
+## Run:
+
+On Windows: start "Start Minesweeper.bat"
+
+or:
+
+py -m [PATH-TO-MODULE]/Minesweeper.main
