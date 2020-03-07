@@ -1,1 +1,1 @@
-start /b pyw -m pyMinesweeper.main /D
+start /b pyw -m pyMinesweeper.main
