@@ -165,6 +165,7 @@ class MainWindow(QMainWindow):
             if not cell_visible and not button.maybe_mine and button.pressed:
                 button.pressed = False
                 button.setStyleSheet("border: 0px")
+
                 playsound(self.sound_click, False)
 
             if cell_visible and self.all_mines_in_area_marked(
@@ -194,6 +195,8 @@ class MainWindow(QMainWindow):
                         )
                         button.setText("🚩")
                         button.maybe_mine = not button.maybe_mine
+                    else:
+                        button.setStyleSheet("")
         ev.accept()
 
     def all_mines_in_area_marked(self, expected_amount_mines_in_area, pos):
@@ -214,6 +217,8 @@ class MainWindow(QMainWindow):
         if value > 0:
             self.lcdNumber_amount_mines.display(value - 1)
             return True
+        else:
+            return False
 
     def clear_layout(self, layout):
         while layout.count():
