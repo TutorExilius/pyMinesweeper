@@ -20,6 +20,7 @@ class Cell:
         self.amount = amount
         self.visible = False
         self.maybe_mine = False
+
     def __str__(self):
         return str(self.amount)
 
@@ -51,7 +52,9 @@ class Game:
                 self.field[h][w] = Cell()
 
     def mine_field(self, initial_clicked_pos):
-        positions = [(h, w) for h in range(self.field_height) for w in range(self.field_width)]
+        positions = [
+            (h, w) for h in range(self.field_height) for w in range(self.field_width)
+        ]
         positions.remove(initial_clicked_pos)
 
         random_positions = sample(positions, self.amount_mines)

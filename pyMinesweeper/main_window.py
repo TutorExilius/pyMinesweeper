@@ -1,11 +1,19 @@
+import enum
 import functools
 import PyQt5
-from PyQt5.QtCore import QEvent, pyqtSignal, QTimer
+from PyQt5.QtCore import QEvent, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import *
-from PyQt5 import uic, Qt, QtGui, QtCore
+from PyQt5 import uic, QtGui
 from pathlib import Path
 from pyMinesweeper.game import Game
+from playsound import playsound
+
+
+class GameMode(enum.IntEnum):
+    BEGINNER = 0
+    INTERMEDIATE = 1
+    EXPERT = 2
 
 
 class MainWindow(QMainWindow):
@@ -13,8 +21,31 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__(parent)
         uic.loadUi(Path(__file__).parent / "ui" / "main_window.ui", self)
 
-        # QT: connect reset button
-        self.pushButton_reset.clicked.connect(self.reset)
+        # Sounds
+        self.sound_beginner_mode = str(
+            Path(__file__).parent / "sounds" / "beginner_mode.mp3"
+        )
+        self.sound_intermediate_mode = str(
+            Path(__file__).parent / "sounds" / "intermediate_mode.mp3"
+        )
+        self.sound_expert_mode = str(
+            Path(__file__).parent / "sounds" / "expert_mode.mp3"
+        )
+        self.sound_beginner_win = str(
+            Path(__file__).parent / "sounds" / "beginner_win.mp3"
+        )
+        self.sound_intermediate_win = str(
+            Path(__file__).parent / "sounds" / "intermediate_win.mp3"
+        )
+        self.sound_expert_win = str(Path(__file__).parent / "sounds" / "expert_win.mp3")
+        self.sound_flag = str(Path(__file__).parent / "sounds" / "beginner_win.mp3")
+        self.sound_reset = str(Path(__file__).parent / "sounds" / "reset_game.mp3")
+        self.sound_click = str(Path(__file__).parent / "sounds" / "click.mp3")
+        self.sound_boom = str(Path(__file__).parent / "sounds" / "boom.mp3")
+        self.sound_flag = str(Path(__file__).parent / "sounds" / "flag.mp3")
+
+        # Qt: connect reset button
+        self.pushButton_reset.clicked.connect(self.on_reset_clicked)
         self.pushButton_beginner.clicked.connect(self.change_to_beginner_mode)
         self.pushButton_intermediate.clicked.connect(self.change_to_intermediate_mode)
         self.pushButton_expert.clicked.connect(self.change_to_expert_mode)
@@ -25,6 +56,7 @@ class MainWindow(QMainWindow):
         self.width = width
         self.amount_mines = amount_mines
         self.minesweeper = None
+        self.current_mode = GameMode.BEGINNER
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_lcd_timer)
@@ -41,6 +73,10 @@ class MainWindow(QMainWindow):
 
         self.reset()
 
+    def on_reset_clicked(self):
+        self.reset()
+        playsound(self.sound_reset, False)
+
     def on_about_qt(self):
         QMessageBox.aboutQt(self)
 
@@ -49,18 +85,24 @@ class MainWindow(QMainWindow):
         self.width = 8
         self.amount_mines = 10
         self.reset()
+        self.current_mode = GameMode.BEGINNER
+        playsound(self.sound_beginner_mode, False)
 
     def change_to_intermediate_mode(self):
         self.height = 16
         self.width = 16
         self.amount_mines = 40
         self.reset()
+        self.current_mode = GameMode.INTERMEDIATE
+        playsound(self.sound_intermediate_mode, False)
 
     def change_to_expert_mode(self):
         self.height = 16
         self.width = 32
         self.amount_mines = 99
         self.reset()
+        self.current_mode = GameMode.EXPERT
+        playsound(self.sound_expert_mode, False)
 
     def start_game_timer(self):
         self.timer.start(1000)
@@ -84,9 +126,14 @@ class MainWindow(QMainWindow):
                 font.setPointSize(14)
                 button.setFont(font)
                 button.meta = (h, w)
+                button.mouseReleaseEvent = functools.partial(
+                    self.on_mouse_release_event, button
+                )
                 button.mousePressEvent = functools.partial(
-                    self.my_mouse_press_event, button)
+                    self.on_mouse_press_event, button
+                )
                 button.maybe_mine = False
+                button.pressed = False
                 button.paired_cell = self.minesweeper.field[h][w]
                 self.gridLayout.addWidget(button, h, w)
                 self.minesweeper.field[h][w].paired_button = button
@@ -96,14 +143,27 @@ class MainWindow(QMainWindow):
         QTimer.singleShot(0, lambda: self.setFixedSize(self.sizeHint()))
         # see: https://forum.qt.io/topic/4500/resize-top-level-window-to-fit-contents/4
 
-    def my_mouse_press_event(self, button, ev):
+    def on_mouse_press_event(self, button, ev):
+        cell_visible = button.paired_cell.visible
+        if not cell_visible and not button.maybe_mine and not button.pressed:
+            # and ev.button() == PyQt5.QtCore.Qt.LeftButton:
+            button.pressed = True
+            button.setStyleSheet("border: 3px inset #aaa;")
+
+    def on_mouse_release_event(self, button, ev):
         h, w = button.meta
         cell_visible = button.paired_cell.visible
         expected_amount_mines_in_area = button.paired_cell.amount.value
 
+        if not cell_visible and not button.maybe_mine and button.pressed:
+            button.pressed = False
+            button.setStyleSheet("border: 0px")
+            playsound(self.sound_click, False)
+
         if ev.button() == PyQt5.QtCore.Qt.LeftButton:
             if cell_visible and self.all_mines_in_area_marked(
-                    expected_amount_mines_in_area, (h, w)):
+                expected_amount_mines_in_area, (h, w)
+            ):
                 # todo: implement step_in_all_fields_area()
 
                 self.step_in_neighbors((h, w))
@@ -114,16 +174,24 @@ class MainWindow(QMainWindow):
             if not button.paired_cell.visible:
                 if button.maybe_mine:
                     button.setStyleSheet("")
+                    button.setText("")
                     self.increment_mines_lcd()
                     button.maybe_mine = not button.maybe_mine
                 else:
                     if self.decrement_mines_lcd():
-                        button.setStyleSheet("background-color: #FFC3C3;")
+                        button.setStyleSheet(
+                            "border: 1px solid black; background-color: #efefef;"
+                        )
+                        button.setText("🚩")
                         button.maybe_mine = not button.maybe_mine
+
+                        playsound(self.sound_flag, False)
+
         ev.accept()
 
     def all_mines_in_area_marked(self, expected_amount_mines_in_area, pos):
         mines_in_area = self.minesweeper.on_neighbors(pos, lambda pos: None)
+        print("marked:", mines_in_area)
         return mines_in_area == expected_amount_mines_in_area
 
     def step_in_neighbors(self, pos):
@@ -181,28 +249,36 @@ class MainWindow(QMainWindow):
                         text = "💣"
                     elif text == "0":
                         text = ""
-                        field[h][w].paired_button.setStyleSheet("border: 1px solid #333")
+                        field[h][w].paired_button.setStyleSheet(
+                            "border: 1px solid #333"
+                        )
 
                         # field[h][w].paired_button.setVisible(False)
                     else:
-                        field[h][w].paired_button.setStyleSheet("border: 1px solid #333")
+                        field[h][w].paired_button.setStyleSheet(
+                            "border: 1px solid #333"
+                        )
 
                     field[h][w].paired_button.setText(text)
 
         if self.minesweeper.won():
+            if self.current_mode == GameMode.BEGINNER:
+                playsound(self.sound_beginner_win, False)
+            elif self.current_mode == GameMode.INTERMEDIATE:
+                playsound(self.sound_intermediate_win, False)
+            else:
+                playsound(self.sound_expert_win, False)
+
             self.pushButton_reset.setText("😁")
-
             self.stop_game_timer()
-
-            self.show_message_box("Finished", "You WON!")
+            # self.show_message_box("Finished", "You WON!")
             self.disable_field()
 
     def game_over(self):
+        playsound(self.sound_boom, False)
         self.pushButton_reset.setText("😵")
-
         self.stop_game_timer()
-
-        self.show_message_box("Finished", "GAME OVER :(")
+        # self.show_message_box("Finished", "GAME OVER :(")
         self.disable_field()
 
     def disable_field(self):
