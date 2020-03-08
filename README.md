@@ -9,11 +9,11 @@ Python 3.8 (maybe >3.4) (Created and tested in python 3.8)
 ## Installation:
 
 1. Install Python: Downad from https://www.python.org/downloads/
-2. Set PYTHON in syspath if not done by installation assistant of python.
+2. Install Dependencies:
+- Common way: Open Terminal and run: pip install --user -r requirements.txt
+- OR on Windows: run Install.bat
 
-3. Install Dependencies:
-Common way: Open Terminal and run: pip install --user -r requirements.txt
-OR nn Windows: run Install.bat
+IF PIP IS NOT FOUND: set python to system path! HOW? See description here: https://geek-university.com/python/add-python-to-the-windows-path/
 
 
 ## Run:
