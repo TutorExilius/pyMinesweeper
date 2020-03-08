@@ -43,6 +43,7 @@ class MainWindow(QMainWindow):
         self.sound_click = str(Path(__file__).parent / "sounds" / "click.mp3")
         self.sound_boom = str(Path(__file__).parent / "sounds" / "boom.mp3")
         self.sound_flag = str(Path(__file__).parent / "sounds" / "flag.mp3")
+        self.sound_bye = str(Path(__file__).parent / "sounds" / "bye.mp3")
 
         # Qt: connect reset button
         self.pushButton_reset.clicked.connect(self.on_reset_clicked)
@@ -72,6 +73,10 @@ class MainWindow(QMainWindow):
         self.lcdNumber_playing_time.setPalette(palette)
 
         self.reset()
+
+    def closeEvent(self, event):
+        playsound(self.sound_bye, True)
+        event.accept()
 
     def on_reset_clicked(self):
         self.reset()
@@ -162,7 +167,7 @@ class MainWindow(QMainWindow):
 
         if ev.button() == PyQt5.QtCore.Qt.LeftButton:
             if cell_visible and self.all_mines_in_area_marked(
-                expected_amount_mines_in_area, (h, w)
+                    expected_amount_mines_in_area, (h, w)
             ):
                 # todo: implement step_in_all_fields_area()
 
