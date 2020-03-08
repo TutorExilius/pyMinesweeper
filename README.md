@@ -10,8 +10,9 @@ Python 3.8 (maybe >3.4) (Created and tested in python 3.8)
 
 1. Install Python if not done: Download from https://www.python.org/downloads/
 2. Install Dependencies:
-- Common way: Open Terminal and run: pip install --user -r requirements.txt
-- OR on Windows: run Install.bat
+- Common way: open a terminal and navigatoe to root DIR of downloaded game (to the directory, where you will find Install.bat) and run: pip install --user -r requirements.txt
+
+- OR on Windows, just start "Install.bat"
 
 IF PIP IS NOT FOUND: set python to system path! HOW? See description here: https://geek-university.com/python/add-python-to-the-windows-path/
 
@@ -20,6 +21,6 @@ IF PIP IS NOT FOUND: set python to system path! HOW? See description here: https
 
 On Windows: start "Start Minesweeper.bat"
 
-or:
-
+OR - in terminal:
+Navigate to Games-Root directory (to the directory, where you will find Install.bat) and run:
 py -m [PATH-TO-MODULE]/Minesweeper.main
