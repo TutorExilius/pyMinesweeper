@@ -23,4 +23,4 @@ On Windows: start "Start Minesweeper.bat"
 
 OR - in terminal:
 Navigate to Games-Root directory (to the directory, where you will find Install.bat) and run in terminal:
-py -m [PATH-TO-MODULE]/Minesweeper.main
+py -m Minesweeper.main
