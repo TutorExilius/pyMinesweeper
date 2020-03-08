@@ -9,7 +9,16 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic, QtGui
 from pathlib import Path
 from pyMinesweeper.game import Game
-from playsound import playsound
+from playsound import playsound as ps
+
+
+def playsound(sound_file, blocked):
+    try:
+        ps(sound_file, blocked)
+        print("Play sound:", sound_file)
+    except Exception as e:
+        print("Played too fast?")
+        print(e)
 
 
 class GameMode(enum.IntEnum):
@@ -162,7 +171,6 @@ class MainWindow(QMainWindow):
         cell_visible = button.paired_cell.visible
         expected_amount_mines_in_area = button.paired_cell.amount.value
 
-
         if ev.button() == PyQt5.QtCore.Qt.LeftButton:
             if not cell_visible and not button.maybe_mine and button.pressed:
                 button.pressed = False
@@ -207,6 +215,7 @@ class MainWindow(QMainWindow):
         return mines_in_area == expected_amount_mines_in_area
 
     def step_in_neighbors(self, pos):
+        # pass  # not implemented yet
         self.minesweeper.step_in_neighbors(pos)
 
     def increment_mines_lcd(self):
@@ -243,13 +252,16 @@ class MainWindow(QMainWindow):
         self.pushButton_reset.setText("😊")
 
     def step_in(self, h, w):
-        if not self.initial_clicked:
-            self.start((h, w))
-            self.initial_clicked = True
-        else:
-            self.minesweeper.step_in(h, w)
+        try:
+            if not self.initial_clicked:
+                self.start((h, w))
+                self.initial_clicked = True
+            else:
+                self.minesweeper.step_in(h, w)
 
-        self.update_ui()
+            self.update_ui()
+        except Exception as e:
+            print(e)
 
     def update_ui(self):
         field = self.minesweeper.field
