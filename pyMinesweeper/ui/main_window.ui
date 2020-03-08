@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>pyMinesweeper 2020 - v2.21</string>
+   <string>pyMinesweeper 2020 - v2.3</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -386,8 +386,15 @@
     </property>
     <addaction name="action_About_Qt"/>
    </widget>
+   <widget class="QMenu" name="menu_Donate">
+    <property name="title">
+     <string>&amp;Donate</string>
+    </property>
+    <addaction name="actionSupport_Tutor_Exilius"/>
+   </widget>
    <addaction name="menu_Menu"/>
    <addaction name="menu_About"/>
+   <addaction name="menu_Donate"/>
   </widget>
   <action name="action_About_Qt">
    <property name="text">
@@ -402,6 +409,11 @@
   <action name="action_Quit">
    <property name="text">
     <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="actionSupport_Tutor_Exilius">
+   <property name="text">
+    <string>&amp;Support Tutor Exilius</string>
    </property>
   </action>
  </widget>

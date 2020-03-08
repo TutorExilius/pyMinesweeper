@@ -1,5 +1,7 @@
 import enum
 import functools
+import webbrowser
+
 import PyQt5
 from PyQt5.QtCore import QEvent, QTimer
 from PyQt5.QtGui import QFont
@@ -50,7 +52,7 @@ class MainWindow(QMainWindow):
         self.pushButton_beginner.clicked.connect(self.change_to_beginner_mode)
         self.pushButton_intermediate.clicked.connect(self.change_to_intermediate_mode)
         self.pushButton_expert.clicked.connect(self.change_to_expert_mode)
-
+        self.actionSupport_Tutor_Exilius.triggered.connect(self.open_twitch_support_page)
         self.action_About_Qt.triggered.connect(self.on_about_qt)
 
         self.height = height
@@ -308,3 +310,6 @@ class MainWindow(QMainWindow):
         msg.setWindowTitle(title)
         msg.setText(text)
         msg.exec_()
+
+    def open_twitch_support_page(self):
+        webbrowser.open("https://streamlabs.com/tutorexilius")
