@@ -38,11 +38,11 @@ class MainWindow(QMainWindow):
             Path(__file__).parent / "sounds" / "intermediate_win.mp3"
         )
         self.sound_expert_win = str(Path(__file__).parent / "sounds" / "expert_win.mp3")
-        self.sound_flag = str(Path(__file__).parent / "sounds" / "beginner_win.mp3")
+        self.sound_flag = str(Path(__file__).parent / "sounds" / "flag.mp3")
+        self.sound_no_flag = str(Path(__file__).parent / "sounds" / "no_flag.mp3")
         self.sound_reset = str(Path(__file__).parent / "sounds" / "reset_game.mp3")
         self.sound_click = str(Path(__file__).parent / "sounds" / "click.mp3")
         self.sound_boom = str(Path(__file__).parent / "sounds" / "boom.mp3")
-        self.sound_flag = str(Path(__file__).parent / "sounds" / "flag.mp3")
         self.sound_bye = str(Path(__file__).parent / "sounds" / "bye.mp3")
 
         # Qt: connect reset button
@@ -160,12 +160,13 @@ class MainWindow(QMainWindow):
         cell_visible = button.paired_cell.visible
         expected_amount_mines_in_area = button.paired_cell.amount.value
 
-        if not cell_visible and not button.maybe_mine and button.pressed:
-            button.pressed = False
-            button.setStyleSheet("border: 0px")
-            playsound(self.sound_click, False)
 
         if ev.button() == PyQt5.QtCore.Qt.LeftButton:
+            if not cell_visible and not button.maybe_mine and button.pressed:
+                button.pressed = False
+                button.setStyleSheet("border: 0px")
+                playsound(self.sound_click, False)
+
             if cell_visible and self.all_mines_in_area_marked(
                     expected_amount_mines_in_area, (h, w)
             ):
@@ -178,20 +179,21 @@ class MainWindow(QMainWindow):
             # ignore visible fields
             if not button.paired_cell.visible:
                 if button.maybe_mine:
+                    playsound(self.sound_no_flag, False)
+
                     button.setStyleSheet("")
                     button.setText("")
                     self.increment_mines_lcd()
                     button.maybe_mine = not button.maybe_mine
                 else:
                     if self.decrement_mines_lcd():
+                        playsound(self.sound_flag, False)
+
                         button.setStyleSheet(
                             "border: 1px solid black; background-color: #efefef;"
                         )
                         button.setText("🚩")
                         button.maybe_mine = not button.maybe_mine
-
-                        playsound(self.sound_flag, False)
-
         ev.accept()
 
     def all_mines_in_area_marked(self, expected_amount_mines_in_area, pos):
