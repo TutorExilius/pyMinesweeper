@@ -8,7 +8,7 @@ Python 3.8 (maybe >3.4) (Created and tested in python 3.8)
 
 ## Installation:
 
-1. Install Python: Downad from https://www.python.org/downloads/
+1. Install Python if not done: Download from https://www.python.org/downloads/
 2. Install Dependencies:
 - Common way: Open Terminal and run: pip install --user -r requirements.txt
 - OR on Windows: run Install.bat
