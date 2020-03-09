@@ -55,6 +55,7 @@ class MainWindow(QMainWindow):
         self.sound_click = str(Path(__file__).parent / "sounds" / "click.mp3")
         self.sound_boom = str(Path(__file__).parent / "sounds" / "boom.mp3")
         self.sound_bye = str(Path(__file__).parent / "sounds" / "bye.mp3")
+        self.sound_donate = str(Path(__file__).parent / "sounds" / "donate.mp3")
 
         # Qt: connect reset button
         self.pushButton_reset.clicked.connect(self.on_reset_clicked)
@@ -332,4 +333,5 @@ class MainWindow(QMainWindow):
         msg.exec_()
 
     def open_twitch_support_page(self):
+        playsound(self.sound_donate, False)
         webbrowser.open("https://streamlabs.com/tutorexilius")
