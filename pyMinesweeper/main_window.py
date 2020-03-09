@@ -97,27 +97,27 @@ class MainWindow(QMainWindow):
         QMessageBox.aboutQt(self)
 
     def change_to_beginner_mode(self):
+        self.current_mode = GameMode.BEGINNER
         self.height = 8
         self.width = 8
         self.amount_mines = 10
         self.reset()
-        self.current_mode = GameMode.BEGINNER
         playsound(self.sound_beginner_mode, False)
 
     def change_to_intermediate_mode(self):
+        self.current_mode = GameMode.INTERMEDIATE
         self.height = 16
         self.width = 16
         self.amount_mines = 40
         self.reset()
-        self.current_mode = GameMode.INTERMEDIATE
         playsound(self.sound_intermediate_mode, False)
 
     def change_to_expert_mode(self):
+        self.current_mode = GameMode.EXPERT
         self.height = 16
         self.width = 32
         self.amount_mines = 99
         self.reset()
-        self.current_mode = GameMode.EXPERT
         playsound(self.sound_expert_mode, False)
 
     def start_game_timer(self):
@@ -132,14 +132,22 @@ class MainWindow(QMainWindow):
 
     def initialise_field(self):
         self.clear_layout(self.gridLayout)
+        button_size = (40, 40)
+        font = QFont()
+        font.setPointSize(15)
+        font.setBold(False)
+
+        if self.current_mode == GameMode.INTERMEDIATE:
+            font.setPointSize(11)
+            button_size = (32, 32)
+        elif self.current_mode == GameMode.EXPERT:
+            font.setPointSize(11)
+            button_size = (32, 32)
 
         for h in range(self.height):
             for w in range(self.width):
                 button = QPushButton()
-                button.setFixedSize(45, 45)
-                font = QFont()
-                font.setBold(False)
-                font.setPointSize(14)
+                button.setFixedSize(button_size[0], button_size[1])
                 button.setFont(font)
                 button.meta = (h, w)
                 button.mouseReleaseEvent = functools.partial(
