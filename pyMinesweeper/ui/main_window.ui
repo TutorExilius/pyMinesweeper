@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>pyMinesweeper 2020 - v2.4</string>
+   <string>pyMinesweeper 2020 - v2.4.1</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>

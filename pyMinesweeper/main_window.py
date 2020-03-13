@@ -9,12 +9,22 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic, QtGui
 from pathlib import Path
 from pyMinesweeper.game import Game
-from playsound import playsound as ps
+import playsound
+from platform import system
+
+system = system()
+play = None
+if system == 'Windows':
+    play = playsound._playsoundWin
+elif system == 'Darwin':
+    play = playsound._playsoundOSX
+else:
+    play = playsound._playsoundNix
 
 
 def playsound(sound_file, blocked):
     try:
-        ps(sound_file, blocked)
+        play(sound_file, blocked)
         print("Play sound:", sound_file)
     except Exception as e:
         print("Played too fast?")
