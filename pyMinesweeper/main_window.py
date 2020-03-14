@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic, QtGui
 from pathlib import Path
 from pyMinesweeper.game import Game
-import playsound
+import pyMinesweeper.playsound as playsound
 from platform import system
 
 system = system()

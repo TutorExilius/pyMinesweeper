@@ -1,4 +1,4 @@
-# pyMinesweeper 2020 - v2.4.1
+# pyMinesweeper 2020 - v2.5
 
 
 ## Requirments:
