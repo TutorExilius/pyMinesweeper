@@ -1,34 +1,15 @@
 import enum
 import functools
 import webbrowser
-
 import PyQt5
-from PyQt5.QtCore import QEvent, QTimer
+from PyQt5.QtCore import QEvent, QTimer, QUrl
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import *
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QPushButton
 from PyQt5 import uic, QtGui
 from pathlib import Path
+
 from pyMinesweeper.game import Game
-import pyMinesweeper.playsound as playsound
-from platform import system
-
-system = system()
-play = None
-if system == 'Windows':
-    play = playsound._playsoundWin
-elif system == 'Darwin':
-    play = playsound._playsoundOSX
-else:
-    play = playsound._playsoundNix
-
-
-def playsound(sound_file, blocked):
-    try:
-        play(sound_file, blocked)
-        print("Play sound:", sound_file)
-    except Exception as e:
-        print("Played too fast?")
-        print(e)
 
 
 class GameMode(enum.IntEnum):
@@ -81,6 +62,11 @@ class MainWindow(QMainWindow):
         self.minesweeper = None
         self.current_mode = GameMode.BEGINNER
 
+        # Media Player
+        self.player = QMediaPlayer()
+        self.player.setVolume(100)
+
+        # Timer
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_lcd_timer)
 
@@ -96,13 +82,40 @@ class MainWindow(QMainWindow):
 
         self.reset()
 
+    def playsound(self, sound_file):
+        try:
+            print("Play sound:", sound_file)
+
+            self.player.setMedia(QMediaContent(QUrl.fromLocalFile(sound_file)))
+            self.player.play()
+
+        except Exception as e:
+            print("Played too fast?")
+            print(e)
+
     def closeEvent(self, event):
-        playsound(self.sound_bye, True)
+        # small hack :)
+        # DO FIRST: link next close event to self.force_closeEvent(..)
+        self.closeEvent = self.force_closeEvent
+
+        # end of playing 'self.sound_bye' will occure next close()
+        # --> self.force_closeEvent(..) will be called
+        self.player.stateChanged.connect(self.on_bye_played)
+
+        self.playsound(self.sound_bye)
+
+        event.ignore()
+
+    def force_closeEvent(self, event):
         event.accept()
+
+    def on_bye_played(self, state):
+        if state == QMediaPlayer.StoppedState:
+            self.close()
 
     def on_reset_clicked(self):
         self.reset()
-        playsound(self.sound_reset, False)
+        self.playsound(self.sound_reset)
 
     def on_about_qt(self):
         QMessageBox.aboutQt(self)
@@ -113,7 +126,7 @@ class MainWindow(QMainWindow):
         self.width = 8
         self.amount_mines = 10
         self.reset()
-        playsound(self.sound_beginner_mode, False)
+        self.playsound(self.sound_beginner_mode)
 
     def change_to_intermediate_mode(self):
         self.current_mode = GameMode.INTERMEDIATE
@@ -121,7 +134,7 @@ class MainWindow(QMainWindow):
         self.width = 16
         self.amount_mines = 40
         self.reset()
-        playsound(self.sound_intermediate_mode, False)
+        self.playsound(self.sound_intermediate_mode)
 
     def change_to_expert_mode(self):
         self.current_mode = GameMode.EXPERT
@@ -129,7 +142,7 @@ class MainWindow(QMainWindow):
         self.width = 32
         self.amount_mines = 99
         self.reset()
-        playsound(self.sound_expert_mode, False)
+        self.playsound(self.sound_expert_mode)
 
     def start_game_timer(self):
         self.timer.start(1000)
@@ -195,7 +208,7 @@ class MainWindow(QMainWindow):
                 button.pressed = False
                 button.setStyleSheet("border: 0px")
 
-                playsound(self.sound_click, False)
+                self.playsound(self.sound_click)
 
             if cell_visible and self.all_mines_in_area_marked(
                     expected_amount_mines_in_area, (h, w)
@@ -209,7 +222,7 @@ class MainWindow(QMainWindow):
             # ignore visible fields
             if not button.paired_cell.visible:
                 if button.maybe_mine:
-                    playsound(self.sound_no_flag, False)
+                    self.playsound(self.sound_no_flag)
 
                     button.setStyleSheet("")
                     button.setText("")
@@ -217,7 +230,7 @@ class MainWindow(QMainWindow):
                     button.maybe_mine = not button.maybe_mine
                 else:
                     if self.decrement_mines_lcd():
-                        playsound(self.sound_flag, False)
+                        self.playsound(self.sound_flag)
 
                         button.setStyleSheet(
                             "border: 1px solid black; background-color: #efefef;"
@@ -308,11 +321,11 @@ class MainWindow(QMainWindow):
 
         if self.minesweeper.won():
             if self.current_mode == GameMode.BEGINNER:
-                playsound(self.sound_beginner_win, False)
+                self.playsound(self.sound_beginner_win)
             elif self.current_mode == GameMode.INTERMEDIATE:
-                playsound(self.sound_intermediate_win, False)
+                self.playsound(self.sound_intermediate_win)
             else:
-                playsound(self.sound_expert_win, False)
+                self.playsound(self.sound_expert_win)
 
             self.pushButton_reset.setText("😁")
             self.stop_game_timer()
@@ -320,7 +333,7 @@ class MainWindow(QMainWindow):
             self.disable_field()
 
     def game_over(self):
-        playsound(self.sound_boom, False)
+        self.playsound(self.sound_boom)
         self.pushButton_reset.setText("😵")
         self.stop_game_timer()
         # self.show_message_box("Finished", "GAME OVER :(")
@@ -343,5 +356,5 @@ class MainWindow(QMainWindow):
         msg.exec_()
 
     def open_twitch_support_page(self):
-        playsound(self.sound_donate, False)
+        self.playsound(self.sound_donate)
         webbrowser.open("https://streamlabs.com/tutorexilius")

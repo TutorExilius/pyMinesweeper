@@ -1,5 +1,7 @@
 import sys
-from pyMinesweeper.main_window import MainWindow, QApplication
+
+from PyQt5.QtWidgets import QApplication
+from pyMinesweeper.main_window import MainWindow
 
 
 def main():
