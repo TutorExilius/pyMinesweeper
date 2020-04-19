@@ -4,7 +4,7 @@ import webbrowser
 import PyQt5
 from PyQt5.QtCore import QEvent, QTimer, QUrl
 from PyQt5.QtGui import QFont
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QSound
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QPushButton
 from PyQt5 import uic, QtGui
 from pathlib import Path
@@ -25,28 +25,28 @@ class MainWindow(QMainWindow):
 
         # Sounds
         self.sound_beginner_mode = str(
-            Path(__file__).parent / "sounds" / "beginner_mode.mp3"
+            Path(__file__).parent / "sounds" / "beginner_mode.wav"
         )
         self.sound_intermediate_mode = str(
-            Path(__file__).parent / "sounds" / "intermediate_mode.mp3"
+            Path(__file__).parent / "sounds" / "intermediate_mode.wav"
         )
         self.sound_expert_mode = str(
-            Path(__file__).parent / "sounds" / "expert_mode.mp3"
+            Path(__file__).parent / "sounds" / "expert_mode.wav"
         )
         self.sound_beginner_win = str(
-            Path(__file__).parent / "sounds" / "beginner_win.mp3"
+            Path(__file__).parent / "sounds" / "beginner_win.wav"
         )
         self.sound_intermediate_win = str(
-            Path(__file__).parent / "sounds" / "intermediate_win.mp3"
+            Path(__file__).parent / "sounds" / "intermediate_win.wav"
         )
-        self.sound_expert_win = str(Path(__file__).parent / "sounds" / "expert_win.mp3")
-        self.sound_flag = str(Path(__file__).parent / "sounds" / "flag.mp3")
-        self.sound_no_flag = str(Path(__file__).parent / "sounds" / "no_flag.mp3")
-        self.sound_reset = str(Path(__file__).parent / "sounds" / "reset_game.mp3")
-        self.sound_click = str(Path(__file__).parent / "sounds" / "click.mp3")
-        self.sound_boom = str(Path(__file__).parent / "sounds" / "boom.mp3")
-        self.sound_bye = str(Path(__file__).parent / "sounds" / "bye.mp3")
-        self.sound_donate = str(Path(__file__).parent / "sounds" / "donate.mp3")
+        self.sound_expert_win = str(Path(__file__).parent / "sounds" / "expert_win.wav")
+        self.sound_flag = str(Path(__file__).parent / "sounds" / "flag.wav")
+        self.sound_no_flag = str(Path(__file__).parent / "sounds" / "no_flag.wav")
+        self.sound_reset = str(Path(__file__).parent / "sounds" / "reset_game.wav")
+        self.sound_click = str(Path(__file__).parent / "sounds" / "click.wav")
+        self.sound_boom = str(Path(__file__).parent / "sounds" / "boom.wav")
+        self.sound_bye = str(Path(__file__).parent / "sounds" / "bye.wav")
+        self.sound_donate = str(Path(__file__).parent / "sounds" / "donate.wav")
 
         # Qt: connect reset button
         self.pushButton_reset.clicked.connect(self.on_reset_clicked)
@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         self.minesweeper = None
         self.current_mode = GameMode.BEGINNER
 
-        # Media Player
+        # Media Player - to play bye.wav synchronously
         self.player = QMediaPlayer()
         self.player.setVolume(100)
 
@@ -86,8 +86,11 @@ class MainWindow(QMainWindow):
         try:
             print("Play sound:", sound_file)
 
-            self.player.setMedia(QMediaContent(QUrl.fromLocalFile(sound_file)))
-            self.player.play()
+            if sound_file == self.sound_bye:
+                self.player.setMedia(QMediaContent(QUrl.fromLocalFile(sound_file)))
+                self.player.play()
+            else:
+                QSound.play(sound_file)
 
         except Exception as e:
             print("Played too fast?")
